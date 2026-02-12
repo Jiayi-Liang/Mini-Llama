@@ -51,7 +51,7 @@ class AdamW(Optimizer):
                     state["exp_avg"] = torch.zeros_like(p.data)
                     state["exp_avg_sq"] = torch.zeros_like(p.data)
 
-                # TODO: Access hyperparameters from the `group` dictionary
+                # Access hyperparameters from the `group` dictionary
                 alpha = group["lr"]
                 beta1, beta2 = group["betas"]
                 eps = group["eps"]
