@@ -50,10 +50,12 @@ def apply_rotary_emb(
 
     _, seqlen, _, _ = query.shape
     device = query.device
-    # todo
-    #
-    # Please refer to Lecture 5 slides in https://cmu-l3.github.io/anlp-fall2025/static_files/anlp-f2025-05-transformers.pdf
-    # and Section 3 in https://arxiv.org/abs/2104.09864.
+    # Build inverse frequencies for each complex dimension pair.
+    freq_seq = torch.arange(0, head_dim, 2, device=device, dtype=torch.float32)
+    inv_freq = 1.0 / (theta ** (freq_seq / head_dim))
+    positions = torch.arange(seqlen, device=device, dtype=torch.float32)
+    freqs = torch.outer(positions, inv_freq)
+    cos, sin = torch.cos(freqs), torch.sin(freqs)
 
     # reshape xq and xk to match the complex representation
     query_real, query_imag = query.float().reshape(query.shape[:-1] + (-1, 2)).unbind(-1)
@@ -61,15 +63,17 @@ def apply_rotary_emb(
     # This separates each query/key vector into its odd and even indices (assuming *one-indexing*).
     # query_real contains q_1, q_3, q_5, ... and query_imag contains q_2, q_4, q_6, ...
 
-    # First, compute the trigonometric values in the second and fourth columns in
-    # slide 49 (linked above).
+    cos = reshape_for_broadcast(cos, query_real)
+    sin = reshape_for_broadcast(sin, query_real)
 
-    # Then, combine these trigonometric values with the tensors query_real, query_imag,
-    # key_real, and key_imag.
+    query_rot_real = query_real * cos - query_imag * sin
+    query_rot_imag = query_real * sin + query_imag * cos
+    key_rot_real = key_real * cos - key_imag * sin
+    key_rot_imag = key_real * sin + key_imag * cos
 
-    raise NotImplementedError
-
-    query_out = None
-    key_out = None
+    query_out = torch.stack((query_rot_real, query_rot_imag), dim=-1).reshape_as(query)
+    key_out = torch.stack((key_rot_real, key_rot_imag), dim=-1).reshape_as(key)
+    query_out = query_out.type_as(query)
+    key_out = key_out.type_as(key)
     # Return the rotary position embeddings for the query and key tensors
     return query_out, key_out
