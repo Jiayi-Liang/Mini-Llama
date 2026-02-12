@@ -33,6 +33,7 @@ class AdamW(Optimizer):
 
         for group in self.param_groups:
 
+            # TODO: Clip gradients if max_grad_norm is set
             max_grad_norm = group['max_grad_norm']
             params_with_grad = [p for p in group["params"] if p.grad is not None]
             if max_grad_norm is not None and len(params_with_grad) > 0:
@@ -55,7 +56,7 @@ class AdamW(Optimizer):
                 beta1, beta2 = group["betas"]
                 eps = group["eps"]
 
-                # Update first and second moments of the gradients
+                # TODO: Update first and second moments of the gradients
                 exp_avg = state["exp_avg"]
                 exp_avg_sq = state["exp_avg_sq"]
                 state["step"] += 1
@@ -63,6 +64,9 @@ class AdamW(Optimizer):
                 exp_avg.mul_(beta1).add_(grad, alpha=1.0 - beta1)
                 exp_avg_sq.mul_(beta2).addcmul_(grad, grad, value=1.0 - beta2)
 
+                # TODO: Bias correction
+                # Please note that we are using the "efficient version" given in Algorithm 2 
+                # https://arxiv.org/pdf/1711.05101
                 # Bias correction (efficient version, AdamW paper Alg. 2)
                 step = state["step"]
                 denom = exp_avg_sq.sqrt().add_(eps)
@@ -73,9 +77,11 @@ class AdamW(Optimizer):
                     bias_correction2 = 1.0 - beta2 ** step
                     step_size = alpha * (bias_correction2 ** 0.5) / bias_correction1
 
-                # Update parameters
+                # TODO: Update parameters
                 p.data.addcdiv_(exp_avg, denom, value=-step_size)
 
+                # TODO: Add weight decay after the main gradient-based updates.
+                # Please note that the learning rate should be incorporated into this update.
                 # Add weight decay after the main gradient-based updates.
                 if group["weight_decay"] != 0:
                     p.data.add_(p.data, alpha=-alpha * group["weight_decay"])

@@ -14,6 +14,10 @@ def generate_addition_data(n):
     4) Repeat until n unique examples are collected
     5) Return the data formatted as strings of the form "a+b=c"
     """
+    # todo
+    # data = []
+    # ....
+    # return data
     if n < 0:
         raise ValueError('n must be non-negative')
 

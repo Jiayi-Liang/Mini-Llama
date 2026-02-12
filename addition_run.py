@@ -61,6 +61,11 @@ def train_one_epoch(model, loader, optimizer, device):
     Another Hint: 
         token id for "=" is 12. 
     """
+    # todo
+    # model.train()
+    # total_loss = 0
+    # n_batches = 0
+    # for ...
     model.train()
     total_loss = 0.0
     n_batches = 0
@@ -90,6 +95,7 @@ def train_one_epoch(model, loader, optimizer, device):
         total_loss += loss.item()
         n_batches += 1
 
+    # return total_loss / n_batches
     return total_loss / max(n_batches, 1)
 
 
@@ -114,6 +120,11 @@ def evaluate_loss(model, loader, device):
     Another Hint: 
         token id for "=" is 12. 
     """
+    # todo
+    # model.eval()
+    # total_loss = 0
+    # n_batches = 0
+    # for ...
     model.eval()
     total_loss = 0.0
     n_batches = 0
@@ -140,6 +151,7 @@ def evaluate_loss(model, loader, device):
         total_loss += loss.item()
         n_batches += 1
 
+    # return total_loss / n_batches
     return total_loss / max(n_batches, 1)
 
 

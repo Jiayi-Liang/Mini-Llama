@@ -41,6 +41,7 @@ class LayerNorm(torch.nn.Module):
         Returns:
             torch.Tensor: The normalized tensor.
         """
+        # todo
         # RMSNorm: scale by root mean square along hidden dimension.
         return x * torch.rsqrt(torch.mean(x * x, dim=-1, keepdim=True) + self.eps)
 
@@ -105,6 +106,7 @@ class Attention(nn.Module):
         An optimal implementation will compute attention for all heads
         jointly using matrix/tensor operations.
         '''
+        # todo
         scores = torch.matmul(query, key.transpose(-2, -1)) / math.sqrt(query.size(-1))
 
         if self.causal:
@@ -218,6 +220,7 @@ class LlamaLayer(nn.Module):
         5) add a residual connection from the unnormalized self-attention output to the
            output of the feed-forward network
         '''
+        # todo
         attn_output = x + self.attention(self.attention_norm(x))
         output = attn_output + self.feed_forward(self.ffn_norm(attn_output))
         return output
@@ -310,6 +313,7 @@ class Llama(LlamaPreTrainedModel):
                 6) Renormalize the remaining probabilities so they sum to 1.
                 7) Sample from this filtered probability distribution.
                 '''
+                # todo 
                 scaled_logits = logits / temperature
                 probs = F.softmax(scaled_logits, dim=-1)
 
@@ -323,6 +327,7 @@ class Llama(LlamaPreTrainedModel):
                 sorted_probs = sorted_probs / sorted_probs.sum(dim=-1, keepdim=True)
 
                 sampled_sorted_idx = torch.multinomial(sorted_probs, num_samples=1)
+                # map to original vocab indices
                 idx_next = sorted_idx.gather(-1, sampled_sorted_idx)
             
             # append sampled index to the running sequence and continue
