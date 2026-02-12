@@ -63,15 +63,42 @@ def train_one_epoch(model, loader, optimizer, device):
     Another Hint: 
         token id for "=" is 12. 
     """
-    # # todo
+    # todo
     # model.train()
     # total_loss = 0
     # n_batches = 0
     # for ...
+    model.train()
+    total_loss = 0.0
+    n_batches = 0
+
+    for x, y in loader:
+        x = x.to(device)
+        y = y.to(device)
+
+        targets = y.clone()
+        # y is shifted by one position relative to x, so align '=' index for targets.
+        eq_pos = (x == 12).float().argmax(dim=1) - 1
+        eq_pos = torch.clamp(eq_pos, min=0)
+        pos = torch.arange(targets.size(1), device=device).unsqueeze(0)
+        question_mask = pos <= eq_pos.unsqueeze(1)
+        targets[question_mask] = -1
+
+        optimizer.zero_grad()
+        logits, _ = model(x, targets=targets)
+        loss = F.cross_entropy(
+            logits.view(-1, logits.size(-1)),
+            targets.view(-1),
+            ignore_index=-1,
+        )
+        loss.backward()
+        optimizer.step()
+
+        total_loss += loss.item()
+        n_batches += 1
 
     # return total_loss / n_batches
-
-    raise NotImplementedError
+    return total_loss / max(n_batches, 1)
 
 
 @torch.no_grad()
@@ -100,10 +127,34 @@ def evaluate_loss(model, loader, device):
     # total_loss = 0
     # n_batches = 0
     # for ...
+    model.eval()
+    total_loss = 0.0
+    n_batches = 0
+
+    for x, y in loader:
+        x = x.to(device)
+        y = y.to(device)
+
+        targets = y.clone()
+        # y is shifted by one position relative to x, so align '=' index for targets.
+        eq_pos = (x == 12).float().argmax(dim=1) - 1
+        eq_pos = torch.clamp(eq_pos, min=0)
+        pos = torch.arange(targets.size(1), device=device).unsqueeze(0)
+        question_mask = pos <= eq_pos.unsqueeze(1)
+        targets[question_mask] = -1
+
+        logits, _ = model(x, targets=targets)
+        loss = F.cross_entropy(
+            logits.view(-1, logits.size(-1)),
+            targets.view(-1),
+            ignore_index=-1,
+        )
+
+        total_loss += loss.item()
+        n_batches += 1
 
     # return total_loss / n_batches
-
-    raise NotImplementedError
+    return total_loss / max(n_batches, 1)
 
 
 

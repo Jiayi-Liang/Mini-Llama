@@ -18,7 +18,23 @@ def generate_addition_data(n):
     # data = []
     # ....
     # return data
-    raise NotImplementedError
+    if n < 0:
+        raise ValueError('n must be non-negative')
+
+    seen_pairs = set()
+    data = []
+
+    while len(data) < n:
+        a = random.randint(1000, 9999)
+        b = random.randint(1000, 9999)
+        pair = tuple(sorted((a, b)))
+        if pair in seen_pairs:
+            continue
+        seen_pairs.add(pair)
+        c = a + b
+        data.append(f"{a}+{b}={c}")
+
+    return data
 
 def generate_dataset(n, filename, save_dir="data"):
     data = generate_addition_data(n)
