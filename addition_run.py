@@ -16,7 +16,9 @@ from optimizer import AdamW
 from llama import Llama
 from config import LlamaConfig
 
+from torch.nn import functional as F
 import torch.nn.functional as F
+from torch.optim import AdamW
 from tqdm import tqdm
 from torch.utils.data import Dataset
 from torch.utils.data.dataloader import DataLoader
