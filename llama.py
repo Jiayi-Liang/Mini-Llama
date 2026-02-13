@@ -42,9 +42,12 @@ class LayerNorm(torch.nn.Module):
             torch.Tensor: The normalized tensor.
         """
         # todo
-        # RMSNorm: scale by root mean square along hidden dimension.
-        return x * torch.rsqrt(torch.mean(x * x, dim=-1, keepdim=True) + self.eps)
-
+        mu = x.mean(dim=-1, keepdim=True)
+        var = (x - mu).pow(2).mean(dim=-1, keepdim=True) 
+        sigma = torch.sqrt(var + self.eps)
+        x_hat = (x - mu) / sigma
+        return x_hat
+        
     def forward(self, x):
         """
         Apply layer normalization.
