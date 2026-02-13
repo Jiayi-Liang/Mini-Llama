@@ -254,7 +254,7 @@ def model_training(args):
     train_loader = DataLoader(train_dataset, batch_size=training_config["batch_size"], shuffle=True, num_workers=4)
     val_loader   = DataLoader(val_dataset, batch_size=training_config["batch_size"], shuffle=False, num_workers=4)
 
-    optimizer = AdamW(model.parameters(), lr=1e-3)
+    optimizer = AdamW(model.parameters(), lr=1e-3, eps=1e-8, weight_decay=1e-2)
 
     # Start model training
     history = {
