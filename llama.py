@@ -43,7 +43,6 @@ class LayerNorm(torch.nn.Module):
         """
         # todo
         mu = x.mean(dim=-1, keepdim=True)
-        # var = (x - mu).pow(2).mean(dim=-1, keepdim=True) 
         var = torch.var(x, dim=-1, keepdim=True, unbiased=False)
         sigma = torch.sqrt(var + self.eps)
         x_hat = (x - mu) / sigma

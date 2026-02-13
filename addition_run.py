@@ -75,12 +75,12 @@ def train_one_epoch(model, loader, optimizer, device):
         y = y.to(device)
 
         targets = y.clone()
-        # y is shifted by one position relative to x, so align '=' index for targets.
-        eq_pos = (x == 12).float().argmax(dim=1) - 1
-        eq_pos = torch.clamp(eq_pos, min=0)
+        # y contains the next-token targets; '=' lives in y at the boundary
+        # between question and answer. Keep only answer digits for supervision.
+        eq_pos = (targets == 12).float().argmax(dim=1)
         pos = torch.arange(targets.size(1), device=device).unsqueeze(0)
-        question_mask = pos <= eq_pos.unsqueeze(1)
-        targets[question_mask] = -1
+        targets[pos <= eq_pos.unsqueeze(1)] = -1
+        targets[targets <= 0] = -1
 
         optimizer.zero_grad()
         logits, _ = model(x, targets=targets)
@@ -134,12 +134,12 @@ def evaluate_loss(model, loader, device):
         y = y.to(device)
 
         targets = y.clone()
-        # y is shifted by one position relative to x, so align '=' index for targets.
-        eq_pos = (x == 12).float().argmax(dim=1) - 1
-        eq_pos = torch.clamp(eq_pos, min=0)
+        # y contains the next-token targets; '=' lives in y at the boundary
+        # between question and answer. Keep only answer digits for supervision.
+        eq_pos = (targets == 12).float().argmax(dim=1)
         pos = torch.arange(targets.size(1), device=device).unsqueeze(0)
-        question_mask = pos <= eq_pos.unsqueeze(1)
-        targets[question_mask] = -1
+        targets[pos <= eq_pos.unsqueeze(1)] = -1
+        targets[targets <= 0] = -1
 
         logits, _ = model(x, targets=targets)
         loss = F.cross_entropy(
