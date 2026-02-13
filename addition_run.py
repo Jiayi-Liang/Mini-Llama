@@ -229,7 +229,7 @@ def model_training(args):
     }
 
     # Create model 
-    device = torch.device("cuda" if args.use_gpu and torch.cuda.is_available() else "cpu")
+    device = torch.device("cuda")
 
     model = create_model(model_config)
     model = model.to(device)
@@ -516,7 +516,7 @@ def model_testing(args):
     print(f"test length {len(test_dataset)}")
 
     model = create_model(model_config)
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    device = 'cuda'
     model = load_model(
         save_dir=os.path.dirname(args.checkpoint), 
         filename=os.path.basename(args.checkpoint), 
