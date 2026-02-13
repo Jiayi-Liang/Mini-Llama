@@ -82,7 +82,6 @@ def train_one_epoch(model, loader, optimizer, device):
         eq_pos = (targets == 12).float().argmax(dim=1)
         pos = torch.arange(targets.size(1), device=device).unsqueeze(0)
         targets[pos <= eq_pos.unsqueeze(1)] = -1
-        targets[targets <= 0] = -1
 
         optimizer.zero_grad()
         logits, _ = model(x, targets=targets)
@@ -141,7 +140,6 @@ def evaluate_loss(model, loader, device):
         eq_pos = (targets == 12).float().argmax(dim=1)
         pos = torch.arange(targets.size(1), device=device).unsqueeze(0)
         targets[pos <= eq_pos.unsqueeze(1)] = -1
-        targets[targets <= 0] = -1
 
         logits, _ = model(x, targets=targets)
         loss = F.cross_entropy(
